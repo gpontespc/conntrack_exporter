@@ -84,6 +84,9 @@ services:
 ```
 
 O arquivo acima compila o exporter a partir do código local antes de iniciar o contêiner. Basta executar `docker compose up -d`.
+Lembre-se de que a etapa de build depende da internet, pois o Bazel
+baixará bibliotecas como *prometheus-cpp* e *argagg* diretamente do GitHub.
+Sem conexão o processo irá falhar.
 
 ## Logging
 
@@ -108,6 +111,7 @@ Prerequisites:
 * libnetfilter-conntrack-dev (Ubuntu/Debian: `apt-get install libnetfilter-conntrack-dev`)
 
 conntrack_exporter builds as a mostly-static binary, only requiring that the `libnetfilter_conntrack` library is available on the system. To build the binary, run `make`. To build the `hiveco/conntrack_exporter` Docker image, run `make build_docker`.
+Os passos de compilação também necessitam de acesso à internet para baixar as dependências do WORKSPACE.
 
 NOTE: Building is only tested on Ubuntu 22.04.
 
