@@ -55,7 +55,38 @@ To change the listen port:
 docker run -d --cap-add=NET_ADMIN --net=host --name=conntrack_exporter hiveco/conntrack_exporter --listen-port=9101
 ```
 
+For ignoring specific networks:
+
+```
+docker run -d --cap-add=NET_ADMIN --net=host --name=conntrack_exporter \
+  hiveco/conntrack_exporter --ignore-nets=173.245.48.0/20,103.21.244.0/22
+```
+
+Esta opção só está disponível em imagens compiladas a partir do código fonte.
+Utilize o `docker compose` abaixo para gerar a imagem localmente.
+No exemplo a seguir listamos todas as faixas divulgadas pela Cloudflare para
+que o exporter ignore esse tráfego automaticamente.
+
 Run with `--help` to see all available options.
+
+## Docker Compose
+
+```
+services:
+  conntrack:
+    build: .
+    image: conntrack_exporter
+    network_mode: host
+    cap_add:
+      - NET_ADMIN
+    command:
+      - --ignore-nets=173.245.48.0/20,103.21.244.0/22,103.22.200.0/22,103.31.4.0/22,141.101.64.0/18,108.162.192.0/18,190.93.240.0/20,188.114.96.0/20,197.234.240.0/22,198.41.128.0/17,162.158.0.0/15,104.16.0.0/13,104.24.0.0/14,172.64.0.0/13,131.0.72.0/22
+```
+
+O arquivo acima compila o exporter a partir do código local antes de iniciar o contêiner. Basta executar `docker compose up -d`.
+Lembre-se de que a etapa de build depende da internet, pois o Bazel
+baixará bibliotecas como *prometheus-cpp* e *argagg* diretamente do GitHub.
+Sem conexão o processo irá falhar.
 
 ## Logging
 
@@ -80,6 +111,7 @@ Prerequisites:
 * libnetfilter-conntrack-dev (Ubuntu/Debian: `apt-get install libnetfilter-conntrack-dev`)
 
 conntrack_exporter builds as a mostly-static binary, only requiring that the `libnetfilter_conntrack` library is available on the system. To build the binary, run `make`. To build the `hiveco/conntrack_exporter` Docker image, run `make build_docker`.
+Os passos de compilação também necessitam de acesso à internet para baixar as dependências do WORKSPACE.
 
 NOTE: Building is only tested on Ubuntu 22.04.
 
@@ -145,3 +177,4 @@ Similar issues with other connection states (besides `closed`) might be resolved
 ### It's great, but I wish it...
 
 Please open a [new issue](https://github.com/hiveco/conntrack_exporter/issues/new).
+

@@ -60,6 +60,7 @@ int main(int argc, char** argv)
         { "listen_port", {"-l", "--listen-port"}, "The port on which to expose the metrics HTTP endpoint (default: 9318)", 1 },
         { "listen_path", {"-p", "--listen-path"}, "The path on which to expose the metrics HTTP endpoint (default: /metrics)", 1 },
         { "ignore_hosts", {"-i", "--ignore-hosts"}, "Comma-separated list of hosts to ignore", 1 },
+        { "ignore_nets", {"-n", "--ignore-nets"}, "Comma-separated list of CIDR ranges to ignore", 1 },
         { "log_events", {"-e", "--log-events"}, "Enables logging of connection events", 0 },
         { "log_events_format", {"-f", "--log-events-format"}, "Connection events log format (netfilter [default] or json)", 1 },
         { "debug", {"-d", "--debug"}, "Enables logging of debug messages", 0 },
@@ -127,6 +128,18 @@ int main(int argc, char** argv)
 
                 if (args["debug"])
                     cout << "[DEBUG] Added to ignored host list: '" << host << "'" << endl;
+            }
+        }
+        if (args["ignore_nets"])
+        {
+            list<string> ignored_nets;
+            tokenize(args["ignore_nets"], ignored_nets, ", \t", true);
+            for (auto& net : ignored_nets)
+            {
+                table.addIgnoredNet(net);
+
+                if (args["debug"])
+                    cout << "[DEBUG] Added to ignored net list: '" << net << "'" << endl;
             }
         }
 

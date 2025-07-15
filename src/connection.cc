@@ -59,6 +59,18 @@ string Connection::getRemoteHost() const
     }
 }
 
+string Connection::getRemoteIP() const
+{
+    if (isLocalIPAddress(this->getOriginalSourceIP()))
+        return this->getOriginalDestinationIP();
+    else if (isLocalIPAddress(this->getOriginalDestinationIP()))
+        return this->getOriginalSourceIP();
+    else if (isLocalIPAddress(this->getReplySourceIP()))
+        return this->getReplyDestinationIP();
+    else
+        return this->getReplySourceIP();
+}
+
 bool Connection::hasState() const
 {
     return (nfct_attr_is_set(this->conntrack, ATTR_TCP_STATE) != -1 &&
