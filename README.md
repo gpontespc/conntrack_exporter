@@ -64,6 +64,8 @@ docker run -d --cap-add=NET_ADMIN --net=host --name=conntrack_exporter \
 
 Esta opção só está disponível em imagens compiladas a partir do código fonte.
 Utilize o `docker compose` abaixo para gerar a imagem localmente.
+No exemplo a seguir listamos todas as faixas divulgadas pela Cloudflare para
+que o exporter ignore esse tráfego automaticamente.
 
 Run with `--help` to see all available options.
 
