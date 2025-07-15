@@ -1,7 +1,7 @@
 services:
   conntrack:
     build: .
-    image: conntrack_exporter
+      # image: conntrack_exporter
     network_mode: host
     cap_add:
       - NET_ADMIN
