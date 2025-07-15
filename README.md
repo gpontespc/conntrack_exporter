@@ -55,7 +55,27 @@ To change the listen port:
 docker run -d --cap-add=NET_ADMIN --net=host --name=conntrack_exporter hiveco/conntrack_exporter --listen-port=9101
 ```
 
+For ignoring specific networks:
+
+```
+docker run -d --cap-add=NET_ADMIN --net=host --name=conntrack_exporter \
+  hiveco/conntrack_exporter --ignore-nets=173.245.48.0/20,103.21.244.0/22
+```
+
 Run with `--help` to see all available options.
+
+## Docker Compose
+
+```
+version: '3'
+services:
+  conntrack:
+    image: hiveco/conntrack_exporter
+    network_mode: host
+    cap_add:
+      - NET_ADMIN
+    command: ["--ignore-nets=173.245.48.0/20,103.21.244.0/22"]
+```
 
 ## Logging
 

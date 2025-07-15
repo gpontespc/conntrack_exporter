@@ -3,6 +3,7 @@
 #include <fcntl.h>
 #include <iostream>
 #include <algorithm>
+#include <arpa/inet.h>
 
 
 namespace conntrackex {
@@ -99,6 +100,43 @@ bool ConnectionTable::isIgnoredHost(const string& host) const
                  host) != this->ignored_hosts.end());
 }
 
+void ConnectionTable::addIgnoredNet(const string& net)
+{
+    size_t slash = net.find('/');
+    if (slash == string::npos)
+        return;
+
+    string ip = net.substr(0, slash);
+    int prefix = stoi(net.substr(slash + 1));
+    uint32_t ip32;
+
+    if (inet_pton(AF_INET, ip.c_str(), &ip32) != 1)
+        return;
+
+    ip32 = ntohl(ip32);
+    uint32_t mask = (prefix == 0) ? 0 : 0xffffffff << (32 - prefix);
+
+    IgnoredNet item;
+    item.network = ip32 & mask;
+    item.netmask = mask;
+    this->ignored_nets.push_back(item);
+}
+
+bool ConnectionTable::isIgnoredNet(const string& ip) const
+{
+    uint32_t ip32;
+    if (inet_pton(AF_INET, ip.c_str(), &ip32) != 1)
+        return false;
+
+    ip32 = ntohl(ip32);
+    for (const auto& n : this->ignored_nets)
+    {
+        if ((ip32 & n.netmask) == n.network)
+            return true;
+    }
+    return false;
+}
+
 int ConnectionTable::nfct_callback_attach(enum nf_conntrack_msg_type type, struct nf_conntrack* ct, void* data)
 {
     Connection connection(ct);
@@ -124,11 +162,12 @@ void ConnectionTable::updateConnection(enum nf_conntrack_msg_type type, Connecti
 {
     connection.setEventType(type);
 
-    if (this->isIgnoredHost(connection.getRemoteHost()))
+    if (this->isIgnoredHost(connection.getRemoteHost()) ||
+        this->isIgnoredNet(connection.getRemoteIP()))
     {
         if (this->debugging)
         {
-            cout << "[DEBUG] Remote host is present on the ignore list, ignoring connection:" << endl;
+            cout << "[DEBUG] Remote host is present on an ignore list, ignoring connection:" << endl;
             cout << "\t" << connection.toNetFilterString() << endl;
         }
         return;

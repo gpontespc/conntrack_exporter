@@ -44,6 +44,7 @@ public:
     string getReplyDestinationHost() const { return this->getReplyDestinationIP() + ":" + to_string(this->getReplyDestinationPort()); }
 
     string getRemoteHost() const;
+    string getRemoteIP() const;
 
     bool hasState() const;
     ConnectionState getState() const;

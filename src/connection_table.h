@@ -1,6 +1,7 @@
 #pragma once
 
 #include <list>
+#include <stdint.h>
 
 #include "connection.h"
 
@@ -22,6 +23,7 @@ public:
     void enableDebugging(bool enable = true) { this->debugging = enable; }
     void setLoggingFormat(string format) { this->log_events_format = format; }
     void addIgnoredHost(const string& host) { this->ignored_hosts.push_back(host); }
+    void addIgnoredNet(const string& net);
 
     void attach();
     void update();
@@ -34,6 +36,7 @@ private:
     void rebuild();
     void updateConnection(enum nf_conntrack_msg_type type, Connection& connection);
     bool isIgnoredHost(const string& host) const;
+    bool isIgnoredNet(const string& ip) const;
 
     static int nfct_callback_attach(enum nf_conntrack_msg_type type, struct nf_conntrack* ct, void* data);
     static int nfct_callback_rebuild(enum nf_conntrack_msg_type type, struct nf_conntrack* ct, void* data);
@@ -47,6 +50,8 @@ private:
     bool debugging = false;
     ConnectionList connections;
     list<string> ignored_hosts;
+    struct IgnoredNet { uint32_t network; uint32_t netmask; };
+    list<IgnoredNet> ignored_nets;
 };
 
 } // namespace conntrackex
