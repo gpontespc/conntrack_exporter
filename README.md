@@ -70,12 +70,15 @@ Run with `--help` to see all available options.
 version: '3'
 services:
   conntrack:
-    image: hiveco/conntrack_exporter
+    build: .
+    image: conntrack_exporter
     network_mode: host
     cap_add:
       - NET_ADMIN
     command: ["--ignore-nets=173.245.48.0/20,103.21.244.0/22"]
 ```
+
+O arquivo acima compila o exporter a partir do código local antes de iniciar o contêiner. Basta executar `docker compose up -d`.
 
 ## Logging
 

@@ -1,7 +1,8 @@
 version: '3'
 services:
   conntrack:
-    image: hiveco/conntrack_exporter
+    build: .
+    image: conntrack_exporter
     network_mode: host
     cap_add:
       - NET_ADMIN
